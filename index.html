@@ -3,118 +3,97 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ProTham</title>
+  <title>proTham</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     :root {
-      --bg: #0b0d10;
-      --panel: #131720;
-      --panel-soft: #1a1f2b;
-      --line: #2a3242;
-      --text: #ecf1f8;
-      --text-soft: #9da9ba;
-      --accent: #57c5ff;
-      --accent-2: #72f0b5;
-      --danger: #ff7f8a;
-      --shadow: 0 20px 50px rgba(0,0,0,.35);
-      --radius: 16px;
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --line: #d9e2ef;
+      --text: #122033;
+      --text-soft: #5a6d86;
+      --accent: #2269d5;
+      --accent-soft: #eef4ff;
+      --success: #1b7f4d;
+      --danger: #bb2c2c;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(16, 39, 70, 0.08);
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background: radial-gradient(1200px 600px at 20% -10%, #1f2d44 0%, transparent 55%), var(--bg);
-      color: var(--text);
-    }
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 28px; }
-    .hero {
-      display: flex; justify-content: space-between; gap: 20px; align-items: end; margin-bottom: 20px;
-    }
-    h1 { margin: 0; font-size: clamp(24px, 3.4vw, 40px); letter-spacing: -0.02em; }
-    .sub { color: var(--text-soft); margin-top: 10px; max-width: 700px; line-height: 1.5; }
-    .chip {
-      font-family: "JetBrains Mono", monospace;
-      border: 1px solid var(--line);
-      background: rgba(87,197,255,.08);
-      color: var(--accent);
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-    .grid { display: grid; grid-template-columns: 360px 1fr; gap: 18px; }
-    .card {
-      background: linear-gradient(180deg, rgba(255,255,255,.02), transparent), var(--panel);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-    .card-inner { padding: 18px; }
-    .section-title { margin: 0 0 12px; font-size: 14px; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .08em; }
-    .dropzone {
-      border: 1.5px dashed #3b4c67;
-      border-radius: 14px;
-      padding: 18px;
-      background: var(--panel-soft);
-      text-align: center;
-      cursor: pointer;
-      transition: .2s;
-    }
-    .dropzone:hover, .dropzone.drag { border-color: var(--accent); background: #1d2737; }
+    body { margin: 0; min-height: 100vh; font-family: Inter, system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 28px; }
+    .hero { margin-bottom: 20px; }
+    h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); letter-spacing: -0.02em; }
+    .sub { margin-top: 10px; color: var(--text-soft); max-width: 820px; line-height: 1.6; }
+
+    .grid { display: grid; grid-template-columns: minmax(360px, 420px) minmax(0, 1fr); gap: 20px; align-items: start; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .card-inner { padding: 20px; }
+    .section-title { margin: 0 0 12px; font-size: 13px; color: var(--text-soft); text-transform: uppercase; letter-spacing: .08em; }
+
+    .stack { display: grid; gap: 14px; }
+    .dropzone { border: 1.5px dashed #a9bfdc; border-radius: 12px; padding: 16px; background: var(--surface-2); text-align: center; cursor: pointer; transition: .2s ease; }
+    .dropzone:hover, .dropzone.drag { border-color: var(--accent); background: var(--accent-soft); }
     input[type="file"] { display: none; }
-    .help { color: var(--text-soft); font-size: 13px; line-height: 1.5; }
-    .file-meta { margin-top: 10px; font-size: 13px; color: var(--accent-2); min-height: 18px; }
-    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-    button {
-      border: 1px solid var(--line);
-      background: var(--panel-soft);
-      color: var(--text);
-      padding: 9px 13px;
-      border-radius: 10px;
-      font-weight: 600;
-      cursor: pointer;
+
+    .label { font-size: 13px; font-weight: 600; color: var(--text-soft); margin-bottom: 6px; }
+    textarea {
+      width: 100%; min-height: 140px; resize: vertical; border-radius: 12px; border: 1px solid var(--line);
+      padding: 12px; font: 500 13px/1.45 "JetBrains Mono", monospace; color: var(--text); background: var(--surface-2);
     }
-    button.primary { background: linear-gradient(90deg, #39c6ff, #49e3c4); color: #041119; border: none; }
+
+    .help { color: var(--text-soft); font-size: 12px; line-height: 1.5; }
+    .file-meta { font-size: 13px; color: var(--accent); min-height: 18px; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    button { border: 1px solid var(--line); background: #fff; color: var(--text); padding: 9px 14px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
     button:disabled { opacity: .45; cursor: not-allowed; }
-    .status { margin-top: 12px; font-size: 13px; min-height: 20px; }
+    .status { min-height: 20px; font-size: 13px; }
     .status.err { color: var(--danger); }
-    .status.ok { color: var(--accent-2); }
-    .table-wrap { overflow: auto; max-height: 64vh; border-top: 1px solid var(--line); }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th, td { padding: 10px 12px; border-bottom: 1px solid #222a38; text-align: left; }
-    th { position: sticky; top: 0; background: #111722; z-index: 2; font-size: 12px; color: var(--text-soft); text-transform: uppercase; letter-spacing: .05em; }
-    .mono { font-family: "JetBrains Mono", monospace; }
-    .summary { display: grid; grid-template-columns: repeat(3, minmax(120px,1fr)); gap: 8px; margin-top: 14px; }
-    .tile { border: 1px solid var(--line); background: #131d2d; border-radius: 10px; padding: 10px; }
+    .status.ok { color: var(--success); }
+
+    .summary { display: grid; grid-template-columns: repeat(3, minmax(110px, 1fr)); gap: 10px; }
+    .tile { border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); padding: 10px; }
     .tile .k { color: var(--text-soft); font-size: 12px; }
-    .tile .v { margin-top: 4px; font-weight: 700; }
-    @media (max-width: 980px){ .grid { grid-template-columns: 1fr; } }
+    .tile .v { margin-top: 4px; font-size: 18px; font-weight: 700; }
+
+    .table-wrap { max-height: 68vh; overflow: auto; border-top: 1px solid var(--line); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #e6edf7; text-align: left; vertical-align: top; }
+    th { position: sticky; top: 0; background: #f2f6fd; z-index: 2; color: #4f6381; text-transform: uppercase; font-size: 11px; letter-spacing: .06em; }
+    .mono { font-family: "JetBrains Mono", monospace; word-break: break-word; }
+
+    @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="hero">
-      <div>
-        <h1>ProtParam Web</h1>
-        <div class="sub">Upload FASTA / CSV / TXT / XLSX, calculate ProtParam-style properties in-browser, preview results in a table, and download a processed CSV.</div>
-      </div>
-      <div class="chip">Client-side only · no upload</div>
-    </div>
+    <header class="hero">
+      <h1>proTham</h1>
+      <div class="sub">Calculate ProtParam-style protein properties with cleaner alignment and better readability. Upload a file or paste sequences directly, preview processed output, and export as CSV.</div>
+    </header>
 
     <div class="grid">
       <section class="card">
-        <div class="card-inner">
+        <div class="card-inner stack">
           <h2 class="section-title">Input</h2>
+
           <label class="dropzone" id="dropzone" for="fileInput">
             <input id="fileInput" type="file" accept=".fasta,.fa,.faa,.csv,.txt,.xlsx,.xls" />
             <div><strong>Drop file here</strong> or click to select</div>
             <div class="help">Supported: .fasta, .fa, .faa, .csv, .txt, .xlsx, .xls</div>
           </label>
           <div class="file-meta" id="fileMeta">No file selected.</div>
+
+          <div>
+            <div class="label">Or paste sequences</div>
+            <textarea id="sequenceInput" placeholder=">seq_1\nMEEPQSDPSV\n>seq_2\nACDEFGHIKLMNPQRSTVWY\n\nYou can also paste one sequence per line."></textarea>
+            <div class="help">Accepted formats: FASTA blocks, CSV/TXT with known sequence columns, or one amino-acid sequence per line.</div>
+          </div>
 
           <div class="summary" id="summary" hidden>
             <div class="tile"><div class="k">Input rows</div><div class="v" id="nInput">0</div></div>
@@ -123,7 +102,7 @@
           </div>
 
           <div class="btn-row">
-            <button id="processBtn" class="primary" disabled>Process file</button>
+            <button id="processBtn" class="primary" disabled>Process input</button>
             <button id="downloadBtn" disabled>Download CSV</button>
             <button id="clearBtn">Clear</button>
           </div>
@@ -134,11 +113,11 @@
       <section class="card">
         <div class="card-inner" style="padding-bottom:0">
           <h2 class="section-title">Output preview</h2>
-          <div class="help">The table includes the cleaned sequence, then Length, MW (kDa), pI, Extinction Coefficient, Instability Index, Aliphatic Index, and Half-life.</div>
+          <div class="help">Columns include cleaned sequence, Length, MW (kDa), pI, Extinction Coefficient, Instability Index, Aliphatic Index, and Half-life.</div>
         </div>
         <div class="table-wrap">
           <table id="resultTable">
-            <thead><tr><th>Load a file to begin.</th></tr></thead>
+            <thead><tr><th>Load a file or paste sequences to begin.</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -158,283 +137,76 @@
 
     let selectedFile = null;
     let processedRows = [];
+    let fileInput, dropzone, processBtn, downloadBtn, clearBtn, statusEl, fileMeta, sequenceInput;
 
-    let fileInput, dropzone, processBtn, downloadBtn, clearBtn, statusEl, fileMeta;
+    const setStatus = (msg, type='') => { statusEl.className = 'status' + (type ? ' ' + type : ''); statusEl.textContent = msg; };
+    const sanitizeSeq = (seq) => (seq || '').toUpperCase().replace(/\s+/g, '').replace(/[^A-Z]/g, '');
+    const hasOnlyKnownAA = (seq) => /^[ACDEFGHIKLMNPQRSTVWY]+$/.test(seq);
+    const molecularWeight = (seq) => ([...seq].reduce((s, aa) => s + (aaWeights[aa] || 0), 0) - (seq.length - 1) * 18.01528) / 1000;
 
-    function setStatus(msg, type='') {
-      statusEl.className = 'status' + (type ? ' ' + type : '');
-      statusEl.textContent = msg;
-    }
+    function calculatePI(seq, epsilon = 1e-4) { const nTerm = nTermPka[seq[0]] || 7.5; const last = seq[seq.length - 1]; const cTerm = cTermPka[last] || cTermDefault; const counts = Object.fromEntries([...'KRHDECY'].map(aa => [aa, [...seq].filter(x => x === aa).length])); if (last === 'D' || last === 'E') counts[last] = Math.max(0, counts[last] - 1); const posGroups = [...'KRH'].filter(aa => counts[aa] > 0).map(aa => [pKaFixed[aa], counts[aa]]); posGroups.push([nTerm, 1]); const negGroups = [...'DECY'].filter(aa => counts[aa] > 0).map(aa => [pKaFixed[aa], counts[aa]]); negGroups.push([cTerm, 1]); const netCharge = (ph) => posGroups.reduce((a,[pk,c]) => a + c/(1+10**(ph-pk)),0) - negGroups.reduce((a,[pk,c]) => a + c/(1+10**(pk-ph)),0); const bisect = (low, high) => { const mid = (low + high) / 2; if ((high - low) < epsilon) return mid; return netCharge(mid) > 0 ? bisect(mid, high) : bisect(low, mid); }; return Number(bisect(4, 12).toFixed(2)); }
+    const extinctionCoefficient = (seq) => (((seq.match(/W/g)?.length || 0) * aaExt.W + (seq.match(/Y/g)?.length || 0) * aaExt.Y + Math.floor((seq.match(/C/g)?.length || 0) / 2) * aaExt.C) / ([...seq].reduce((s,aa)=>s+(aaWeights[aa]||0),0) - (seq.length - 1) * 18.01528));
+    const instabilityIndex = (seq) => (10 / seq.length) * [...Array(seq.length - 1)].reduce((acc, _, i) => acc + (DIWV[seq[i]]?.[seq[i + 1]] ?? 0), 0);
+    const aliphaticIndex = (seq) => ((seq.match(/A/g)?.length || 0) + 2.9 * (seq.match(/V/g)?.length || 0) + 3.9 * ((seq.match(/I/g)?.length || 0) + (seq.match(/L/g)?.length || 0))) / seq.length * 100;
+    const halfLife = (seq) => 'AGMSTV'.includes(seq[0]) ? '>30 hours' : 'ILNQC'.includes(seq[0]) ? '10 hours' : 'RKHFYW'.includes(seq[0]) ? '2 minutes' : 'DE'.includes(seq[0]) ? '3 minutes' : 'Unknown';
 
-    function sanitizeSeq(seq) {
-      return (seq || '').toUpperCase().replace(/\s+/g, '').replace(/[^A-Z]/g, '');
-    }
+    const calcRow = (id, seq) => ({ ID: id, sequence_mod: seq, Length: seq.length, 'MW (kDa)': Number(molecularWeight(seq).toFixed(2)), pI: calculatePI(seq), Extinction_Coefficient: Number(extinctionCoefficient(seq).toFixed(3)), Instability_Index: Number(instabilityIndex(seq).toFixed(2)), Aliphatic_Index: Number(aliphaticIndex(seq).toFixed(2)), Half_life: halfLife(seq) });
 
-    function hasOnlyKnownAA(seq) {
-      return /^[ACDEFGHIKLMNPQRSTVWY]+$/.test(seq);
-    }
+    function parseFasta(text) { const lines = text.split(/\r?\n/); const rows = []; let header = null, seq = ''; const pushSeq = () => { if (!header) return; const clean = sanitizeSeq(seq); if (clean) rows.push({ id: header, seq: clean }); }; for (const ln of lines) { if (ln.startsWith('>')) { pushSeq(); header = ln.slice(1).trim() || `seq_${rows.length + 1}`; seq = ''; } else seq += ln; } pushSeq(); return rows; }
+    function parseDelimited(text) { const lines = text.split(/\r?\n/).filter(Boolean); if (!lines.length) return []; const delim = lines[0].split('\t').length > lines[0].split(',').length ? '\t' : ','; const head = lines[0].split(delim).map(x => x.trim()); const seqCol = sequenceColumns.find(c => head.includes(c)); if (!seqCol) return []; const idx = head.indexOf(seqCol); const idCol = head.includes('ID') ? head.indexOf('ID') : 0; return lines.slice(1).map((ln, i) => { const cols = ln.split(delim); return { id: (cols[idCol] || `row_${i + 1}`).trim(), seq: sanitizeSeq(cols[idx] || '') }; }).filter(r => r.seq); }
+    function parseTxt(text) { if (/^>/m.test(text)) return parseFasta(text); const delimited = parseDelimited(text); if (delimited.length) return delimited; return text.split(/\r?\n/).map((ln, i) => ({ id: `line_${i + 1}`, seq: sanitizeSeq(ln) })).filter(r => r.seq); }
+    function parseXlsx(arrayBuffer) { const wb = XLSX.read(arrayBuffer, { type: 'array' }); const sheet = wb.Sheets[wb.SheetNames[0]]; const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' }); if (!rows.length) return []; const keys = Object.keys(rows[0]); const seqCol = sequenceColumns.find(c => keys.includes(c)); if (!seqCol) return []; return rows.map((r, i) => ({ id: String(r.ID || r.id || `row_${i + 1}`), seq: sanitizeSeq(String(r[seqCol] || '')) })).filter(r => r.seq); }
 
-    function molecularWeight(seq) {
-      const total = [...seq].reduce((s, aa) => s + (aaWeights[aa] || 0), 0);
-      return (total - (seq.length - 1) * 18.01528) / 1000;
-    }
+    function parsePasted(text) { if (!text.trim()) return []; if (/^>/m.test(text)) return parseFasta(text); const delimited = parseDelimited(text); if (delimited.length) return delimited; return text.split(/\r?\n/).map((ln, i) => ({ id: `pasted_${i + 1}`, seq: sanitizeSeq(ln) })).filter(r => r.seq); }
 
-    function calculatePI(seq, epsilon = 1e-4) {
-      const nTerm = nTermPka[seq[0]] || 7.5;
-      const last = seq[seq.length - 1];
-      const cTerm = cTermPka[last] || cTermDefault;
-      const counts = Object.fromEntries([...'KRHDECY'].map(aa => [aa, [...seq].filter(x => x === aa).length]));
-      if (last === 'D' || last === 'E') counts[last] = Math.max(0, counts[last] - 1);
+    function renderTable(rows) { const table = document.getElementById('resultTable'); const thead = table.querySelector('thead'); const tbody = table.querySelector('tbody'); tbody.innerHTML = ''; if (!rows.length) {thead.innerHTML = '<tr><th>No valid sequences found.</th></tr>'; return;} const cols = Object.keys(rows[0]); thead.innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>'; rows.forEach(r => { const tr = document.createElement('tr'); tr.innerHTML = cols.map(c => `<td class="${c === 'sequence_mod' ? 'mono' : ''}">${String(r[c])}</td>`).join(''); tbody.appendChild(tr); }); }
+    const toCsv = (rows) => !rows.length ? '' : [Object.keys(rows[0]).join(','), ...rows.map(r => Object.keys(rows[0]).map(c => { const s = String(r[c] ?? ''); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(','))].join('\n');
+    const setSummary = (inputN, validN, outputN) => { document.getElementById('summary').hidden = false; nInput.textContent = inputN; nValid.textContent = validN; nOutput.textContent = outputN; };
 
-      const posGroups = [...'KRH'].filter(aa => counts[aa] > 0).map(aa => [pKaFixed[aa], counts[aa]]);
-      posGroups.push([nTerm, 1]);
-      const negGroups = [...'DECY'].filter(aa => counts[aa] > 0).map(aa => [pKaFixed[aa], counts[aa]]);
-      negGroups.push([cTerm, 1]);
-
-      const netCharge = (ph) => {
-        const pos = posGroups.reduce((a, [pk, c]) => a + c / (1 + 10 ** (ph - pk)), 0);
-        const neg = negGroups.reduce((a, [pk, c]) => a + c / (1 + 10 ** (pk - ph)), 0);
-        return pos - neg;
-      };
-
-      const bisect = (low, high) => {
-        const mid = (low + high) / 2;
-        const charge = netCharge(mid);
-        if ((high - low) < epsilon) return mid;
-        return charge > 0 ? bisect(mid, high) : bisect(low, mid);
-      };
-
-      return Number(bisect(4.0, 12.0).toFixed(2));
-    }
-
-    function extinctionCoefficient(seq) {
-      const mw = [...seq].reduce((s, aa) => s + (aaWeights[aa] || 0), 0) - (seq.length - 1) * 18.01528;
-      const ext = (seq.match(/W/g)?.length || 0) * aaExt.W + (seq.match(/Y/g)?.length || 0) * aaExt.Y + Math.floor((seq.match(/C/g)?.length || 0) / 2) * aaExt.C;
-      return ext / mw;
-    }
-
-    function instabilityIndex(seq) {
-      let score = 0;
-      for (let i = 0; i < seq.length - 1; i++) score += (DIWV[seq[i]]?.[seq[i + 1]] ?? 0);
-      return (10.0 / seq.length) * score;
-    }
-
-    function aliphaticIndex(seq) {
-      const total = seq.length;
-      return ((seq.match(/A/g)?.length || 0) + 2.9 * (seq.match(/V/g)?.length || 0) + 3.9 * ((seq.match(/I/g)?.length || 0) + (seq.match(/L/g)?.length || 0))) / total * 100;
-    }
-
-    function halfLife(seq) {
-      const n = seq[0];
-      if ('AGMSTV'.includes(n)) return '>30 hours';
-      if ('ILNQC'.includes(n)) return '10 hours';
-      if ('RKH'.includes(n)) return '2 minutes';
-      if ('FYW'.includes(n)) return '2 minutes';
-      if ('DE'.includes(n)) return '3 minutes';
-      return 'Unknown';
-    }
-
-    function calcRow(id, seq) {
-      return {
-        ID: id,
-        sequence_mod: seq,
-        Length: seq.length,
-        'MW (kDa)': Number(molecularWeight(seq).toFixed(2)),
-        pI: calculatePI(seq),
-        Extinction_Coefficient: Number(extinctionCoefficient(seq).toFixed(3)),
-        Instability_Index: Number(instabilityIndex(seq).toFixed(2)),
-        Aliphatic_Index: Number(aliphaticIndex(seq).toFixed(2)),
-        Half_life: halfLife(seq)
-      };
-    }
-
-    function parseFasta(text) {
-      const lines = text.split(/\r?\n/);
-      const rows = [];
-      let header = null, seq = '';
-      const pushSeq = () => {
-        if (!header) return;
-        const clean = sanitizeSeq(seq);
-        if (clean.length > 0) rows.push({ id: header, seq: clean });
-      };
-      for (const ln of lines) {
-        if (ln.startsWith('>')) { pushSeq(); header = ln.slice(1).trim() || `seq_${rows.length + 1}`; seq = ''; }
-        else seq += ln;
-      }
-      pushSeq();
-      return rows;
-    }
-
-    function parseDelimited(text) {
-      const lines = text.split(/\r?\n/).filter(Boolean);
-      if (!lines.length) return [];
-      const delim = (lines[0].split('\t').length > lines[0].split(',').length) ? '\t' : ',';
-      const head = lines[0].split(delim).map(x => x.trim());
-      const seqCol = sequenceColumns.find(c => head.includes(c));
-      if (!seqCol) return [];
-      const idx = head.indexOf(seqCol);
-      const idCol = head.includes('ID') ? head.indexOf('ID') : 0;
-      return lines.slice(1).map((ln, i) => {
-        const cols = ln.split(delim);
-        return { id: (cols[idCol] || `row_${i+1}`).trim(), seq: sanitizeSeq(cols[idx] || '') };
-      }).filter(r => r.seq.length > 0);
-    }
-
-    function parseTxt(text) {
-      if (/^>/m.test(text)) return parseFasta(text);
-      const delimited = parseDelimited(text);
-      if (delimited.length) return delimited;
-      return text.split(/\r?\n/).map((ln, i) => ({ id: `line_${i+1}`, seq: sanitizeSeq(ln) })).filter(r => r.seq.length > 0);
-    }
-
-    function parseXlsx(arrayBuffer) {
-      const wb = XLSX.read(arrayBuffer, { type: 'array' });
-      const first = wb.SheetNames[0];
-      const sheet = wb.Sheets[first];
-      const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-      if (!rows.length) return [];
-      const keys = Object.keys(rows[0]);
-      const seqCol = sequenceColumns.find(c => keys.includes(c));
-      if (!seqCol) return [];
-      return rows.map((r, i) => ({ id: String(r.ID || r.id || `row_${i+1}`), seq: sanitizeSeq(String(r[seqCol] || '')) })).filter(r => r.seq.length > 0);
-    }
-
-    function renderTable(rows) {
-      const table = document.getElementById('resultTable');
-      const thead = table.querySelector('thead');
-      const tbody = table.querySelector('tbody');
-      tbody.innerHTML = '';
-      if (!rows.length) { thead.innerHTML = '<tr><th>No valid sequences found.</th></tr>'; return; }
-      const columns = Object.keys(rows[0]);
-      thead.innerHTML = '<tr>' + columns.map(c => `<th>${c}</th>`).join('') + '</tr>';
-      rows.forEach(r => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = columns.map(c => `<td class="${c === 'sequence_mod' ? 'mono' : ''}">${String(r[c])}</td>`).join('');
-        tbody.appendChild(tr);
-      });
-    }
-
-    function toCsv(rows) {
-      if (!rows.length) return '';
-      const cols = Object.keys(rows[0]);
-      const esc = (v) => {
-        const s = String(v ?? '');
-        return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
-      };
-      return [cols.join(','), ...rows.map(r => cols.map(c => esc(r[c])).join(','))].join('\n');
-    }
-
-    function setSummary(inputN, validN, outputN) {
-      document.getElementById('summary').hidden = false;
-      document.getElementById('nInput').textContent = inputN;
-      document.getElementById('nValid').textContent = validN;
-      document.getElementById('nOutput').textContent = outputN;
-    }
+    function setProcessState() { processBtn.disabled = !(selectedFile || sequenceInput.value.trim()); }
 
     function bindUi() {
-      fileInput = document.getElementById('fileInput');
-      dropzone = document.getElementById('dropzone');
-      processBtn = document.getElementById('processBtn');
-      downloadBtn = document.getElementById('downloadBtn');
-      clearBtn = document.getElementById('clearBtn');
-      statusEl = document.getElementById('status');
-      fileMeta = document.getElementById('fileMeta');
+      fileInput = document.getElementById('fileInput'); dropzone = document.getElementById('dropzone'); processBtn = document.getElementById('processBtn'); downloadBtn = document.getElementById('downloadBtn'); clearBtn = document.getElementById('clearBtn'); statusEl = document.getElementById('status'); fileMeta = document.getElementById('fileMeta'); sequenceInput = document.getElementById('sequenceInput');
 
-    fileInput.addEventListener('change', () => {
-      selectedFile = fileInput.files[0] || null;
-      if (!selectedFile) return;
-      fileMeta.textContent = `${selectedFile.name} · ${(selectedFile.size / 1024).toFixed(1)} KB`;
-      processBtn.disabled = false;
-      setStatus('File selected. Click “Process file”.');
-    });
+      sequenceInput.addEventListener('input', setProcessState);
+      fileInput.addEventListener('change', () => { selectedFile = fileInput.files[0] || null; fileMeta.textContent = selectedFile ? `${selectedFile.name} · ${(selectedFile.size / 1024).toFixed(1)} KB` : 'No file selected.'; setProcessState(); setStatus(selectedFile ? 'File selected. You can also combine with pasted sequences.' : ''); });
 
-    ['dragenter','dragover'].forEach(evt => dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.add('drag'); }));
-    ['dragleave','drop'].forEach(evt => dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.remove('drag'); }));
-    dropzone.addEventListener('drop', e => {
-      selectedFile = e.dataTransfer.files[0] || null;
-      fileInput.files = e.dataTransfer.files;
-      if (!selectedFile) return;
-      fileMeta.textContent = `${selectedFile.name} · ${(selectedFile.size / 1024).toFixed(1)} KB`;
-      processBtn.disabled = false;
-      setStatus('File selected. Click “Process file”.');
-    });
+      ['dragenter','dragover'].forEach(evt => dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.add('drag'); }));
+      ['dragleave','drop'].forEach(evt => dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.remove('drag'); }));
+      dropzone.addEventListener('drop', e => { selectedFile = e.dataTransfer.files[0] || null; fileInput.files = e.dataTransfer.files; fileMeta.textContent = selectedFile ? `${selectedFile.name} · ${(selectedFile.size / 1024).toFixed(1)} KB` : 'No file selected.'; setProcessState(); if (selectedFile) setStatus('File selected. You can also combine with pasted sequences.'); });
 
-    processBtn.addEventListener('click', async () => {
-      if (!selectedFile) return;
-      try {
-        setStatus('Processing...', '');
-        const name = selectedFile.name.toLowerCase();
-        let seqRows = [];
+      processBtn.addEventListener('click', async () => {
+        try {
+          setStatus('Processing...');
+          let seqRows = [];
+          if (selectedFile) {
+            const name = selectedFile.name.toLowerCase();
+            if (name.endsWith('.fasta') || name.endsWith('.fa') || name.endsWith('.faa')) seqRows = seqRows.concat(parseFasta(await selectedFile.text()));
+            else if (name.endsWith('.csv')) seqRows = seqRows.concat(parseDelimited(await selectedFile.text()));
+            else if (name.endsWith('.txt')) seqRows = seqRows.concat(parseTxt(await selectedFile.text()));
+            else if (name.endsWith('.xlsx') || name.endsWith('.xls')) seqRows = seqRows.concat(parseXlsx(await selectedFile.arrayBuffer()));
+            else throw new Error('Unsupported file type.');
+          }
+          if (sequenceInput.value.trim()) seqRows = seqRows.concat(parsePasted(sequenceInput.value));
+          if (!seqRows.length) throw new Error('No sequences found in file/pasted input.');
 
-        if (name.endsWith('.fasta') || name.endsWith('.fa') || name.endsWith('.faa')) {
-          seqRows = parseFasta(await selectedFile.text());
-        } else if (name.endsWith('.csv')) {
-          seqRows = parseDelimited(await selectedFile.text());
-        } else if (name.endsWith('.txt')) {
-          seqRows = parseTxt(await selectedFile.text());
-        } else if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
-          seqRows = parseXlsx(await selectedFile.arrayBuffer());
-        } else {
-          throw new Error('Unsupported file type.');
+          const valid = seqRows.filter(r => hasOnlyKnownAA(r.seq));
+          processedRows = valid.map(r => calcRow(r.id, r.seq));
+          renderTable(processedRows);
+          setSummary(seqRows.length, valid.length, processedRows.length);
+          downloadBtn.disabled = processedRows.length === 0;
+          setStatus(processedRows.length ? `Done. Processed ${processedRows.length} sequence(s).` : 'No valid amino-acid sequences detected (ACDEFGHIKLMNPQRSTVWY only).', processedRows.length ? 'ok' : 'err');
+        } catch (err) {
+          processedRows = []; downloadBtn.disabled = true; renderTable([]); setStatus(`Error: ${err.message}`, 'err');
         }
+      });
 
-        const valid = seqRows.filter(r => hasOnlyKnownAA(r.seq));
-        processedRows = valid.map(r => calcRow(r.id, r.seq));
-
-        renderTable(processedRows);
-        setSummary(seqRows.length, valid.length, processedRows.length);
-        downloadBtn.disabled = processedRows.length === 0;
-
-        if (!processedRows.length) setStatus('No valid amino-acid sequences detected (allowed: ACDEFGHIKLMNPQRSTVWY).', 'err');
-        else setStatus(`Done. Processed ${processedRows.length} sequence(s).`, 'ok');
-      } catch (err) {
-        processedRows = [];
-        downloadBtn.disabled = true;
-        renderTable([]);
-        setStatus(`Error: ${err.message}`, 'err');
-      }
-    });
-
-    downloadBtn.addEventListener('click', () => {
-      const csv = toCsv(processedRows);
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      const stem = (selectedFile?.name || 'protparam').replace(/\.[^.]+$/, '');
-      a.href = url;
-      a.download = `${stem}_protparam.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-
-    clearBtn.addEventListener('click', () => {
-      selectedFile = null;
-      processedRows = [];
-      fileInput.value = '';
-      fileMeta.textContent = 'No file selected.';
-      processBtn.disabled = true;
-      downloadBtn.disabled = true;
-      document.getElementById('summary').hidden = true;
-      document.getElementById('resultTable').querySelector('thead').innerHTML = '<tr><th>Load a file to begin.</th></tr>';
-      document.getElementById('resultTable').querySelector('tbody').innerHTML = '';
-      setStatus('');
-    });
+      downloadBtn.addEventListener('click', () => { const csv = toCsv(processedRows); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); const stem = (selectedFile?.name || 'proTham').replace(/\.[^.]+$/, ''); a.href = url; a.download = `${stem}_protparam.csv`; a.click(); URL.revokeObjectURL(url); });
+      clearBtn.addEventListener('click', () => { selectedFile = null; processedRows = []; fileInput.value = ''; sequenceInput.value = ''; fileMeta.textContent = 'No file selected.'; processBtn.disabled = true; downloadBtn.disabled = true; document.getElementById('summary').hidden = true; document.querySelector('#resultTable thead').innerHTML = '<tr><th>Load a file or paste sequences to begin.</th></tr>'; document.querySelector('#resultTable tbody').innerHTML = ''; setStatus(''); });
     }
 
-    if (typeof document !== 'undefined') {
-      bindUi();
-    }
-
-    if (typeof globalThis !== 'undefined') {
-      globalThis.ProtParamWeb = {
-        calcRow,
-        parseFasta,
-        parseDelimited,
-        parseTxt,
-        parseXlsx,
-        hasOnlyKnownAA
-      };
-    }
+    if (typeof document !== 'undefined') bindUi();
+    if (typeof globalThis !== 'undefined') globalThis.ProtParamWeb = { calcRow, parseFasta, parseDelimited, parseTxt, parseXlsx, hasOnlyKnownAA, parsePasted };
   </script>
 </body>
 </html>
