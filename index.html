@@ -162,12 +162,29 @@ You can also paste one sequence per line."></textarea>
       return headers.find((h, idx) => idx !== sequenceIdx) || null;
     }
 
-    function detectTableHeaderRowIndex(rows, maxScanRows = 500) {
+    function detectTableHeaderRowIndex(rows, maxScanRows = 500, minDataRowsToCheck = 5) {
       const limit = Math.min(rows.length, maxScanRows);
       for (let i = 0; i < limit; i++) {
-        const candidateHeaders = (rows[i] || []).map((c) => String(c || '').trim()).filter(Boolean);
+        const headerRow = rows[i] || [];
+        const candidateHeaders = headerRow.map((c) => String(c || '').trim()).filter(Boolean);
         if (!candidateHeaders.length) continue;
-        if (findSequenceColumn(candidateHeaders)) return i;
+        const seqCol = findSequenceColumn(candidateHeaders);
+        if (!seqCol) continue;
+        const seqIdx = headerRow.findIndex((h) => normalizeHeader(h) === normalizeHeader(seqCol));
+        if (seqIdx < 0) continue;
+
+        // Avoid selecting title/metadata rows that only contain a sequence-like label.
+        const nonEmptyHeaderCells = headerRow.filter((c) => String(c || '').trim() !== '').length;
+        if (nonEmptyHeaderCells < 2) continue;
+
+        // Validate that at least one upcoming row contains a plausible protein sequence in the sequence column.
+        const maxDataRow = Math.min(rows.length, i + 1 + minDataRowsToCheck);
+        let hasValidSequenceData = false;
+        for (let r = i + 1; r < maxDataRow; r++) {
+          const seq = sanitizeSeq(String((rows[r] || [])[seqIdx] || ''));
+          if (seq && hasOnlyKnownAA(seq)) { hasValidSequenceData = true; break; }
+        }
+        if (hasValidSequenceData) return i;
       }
       return -1;
     }
