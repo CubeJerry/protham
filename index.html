@@ -162,6 +162,16 @@ You can also paste one sequence per line."></textarea>
       return headers.find((h, idx) => idx !== sequenceIdx) || null;
     }
 
+    function detectTableHeaderRowIndex(rows, maxScanRows = 500) {
+      const limit = Math.min(rows.length, maxScanRows);
+      for (let i = 0; i < limit; i++) {
+        const candidateHeaders = (rows[i] || []).map((c) => String(c || '').trim()).filter(Boolean);
+        if (!candidateHeaders.length) continue;
+        if (findSequenceColumn(candidateHeaders)) return i;
+      }
+      return -1;
+    }
+
     let selectedFile = null;
     let processedRows = [];
     let fileInput, dropzone, processBtn, downloadBtn, clearBtn, statusEl, fileMeta, sequenceInput;
@@ -182,7 +192,28 @@ You can also paste one sequence per line."></textarea>
     function parseFasta(text) { const lines = text.split(/\r?\n/); const rows = []; let header = null, seq = ''; const pushSeq = () => { if (!header) return; const clean = sanitizeSeq(seq); if (clean) rows.push({ id: header, seq: clean }); }; for (const ln of lines) { if (ln.startsWith('>')) { pushSeq(); header = ln.slice(1).trim() || `seq_${rows.length + 1}`; seq = ''; } else seq += ln; } pushSeq(); return rows; }
     function parseDelimited(text) { const lines = text.split(/\r?\n/).filter(Boolean); if (!lines.length) return []; const delim = lines[0].split('\t').length > lines[0].split(',').length ? '\t' : ','; const head = lines[0].split(delim).map(x => x.trim()); const seqCol = findSequenceColumn(head); if (!seqCol) return []; const seqIdx = head.indexOf(seqCol); const idCol = findIdColumn(head, seqCol); const idIdx = idCol ? head.indexOf(idCol) : -1; return lines.slice(1).map((ln, i) => { const cols = ln.split(delim); return { id: (idIdx >= 0 && cols[idIdx] ? cols[idIdx] : `row_${i + 1}`).trim(), seq: sanitizeSeq(cols[seqIdx] || '') }; }).filter(r => r.seq); }
     function parseTxt(text) { if (/^>/m.test(text)) return parseFasta(text); const delimited = parseDelimited(text); if (delimited.length) return delimited; return text.split(/\r?\n/).map((ln, i) => ({ id: `line_${i + 1}`, seq: sanitizeSeq(ln) })).filter(r => r.seq); }
-    function parseXlsx(arrayBuffer) { const wb = XLSX.read(arrayBuffer, { type: 'array' }); const sheet = wb.Sheets[wb.SheetNames[0]]; const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' }); if (!rows.length) return []; const keys = Object.keys(rows[0]); const seqCol = findSequenceColumn(keys); if (!seqCol) return []; const idCol = findIdColumn(keys, seqCol); return rows.map((r, i) => ({ id: String((idCol && r[idCol]) || `row_${i + 1}`), seq: sanitizeSeq(String(r[seqCol] || '')) })).filter(r => r.seq); }
+    function parseXlsx(arrayBuffer) {
+      const wb = XLSX.read(arrayBuffer, { type: 'array' });
+      for (const sheetName of wb.SheetNames) {
+        const sheet = wb.Sheets[sheetName];
+        const aoa = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', blankrows: false });
+        if (!aoa.length) continue;
+        const headerRowIdx = detectTableHeaderRowIndex(aoa);
+        if (headerRowIdx < 0) continue;
+        const headers = (aoa[headerRowIdx] || []).map((h) => String(h || '').trim());
+        const seqCol = findSequenceColumn(headers);
+        if (!seqCol) continue;
+        const seqIdx = headers.indexOf(seqCol);
+        const idCol = findIdColumn(headers, seqCol);
+        const idIdx = idCol ? headers.indexOf(idCol) : -1;
+        const parsed = aoa.slice(headerRowIdx + 1).map((row, i) => {
+          const rowId = idIdx >= 0 && row[idIdx] ? String(row[idIdx]).trim() : `row_${i + 1}`;
+          return { id: rowId, seq: sanitizeSeq(String(row[seqIdx] || '')) };
+        }).filter(r => r.seq);
+        if (parsed.length) return parsed;
+      }
+      return [];
+    }
 
     function parsePasted(text) { if (!text.trim()) return []; if (/^>/m.test(text)) return parseFasta(text); const delimited = parseDelimited(text); if (delimited.length) return delimited; return text.split(/\r?\n/).map((ln, i) => ({ id: `pasted_${i + 1}`, seq: sanitizeSeq(ln) })).filter(r => r.seq); }
 
