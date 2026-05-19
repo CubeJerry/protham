@@ -24,14 +24,14 @@
       --shadow: 0 10px 30px rgba(16, 39, 70, 0.08);
     }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; font-family: Inter, system-ui, sans-serif; background: radial-gradient(circle at 10% -10%, #dbe8ff 0, transparent 32%), radial-gradient(circle at 95% 5%, #dff8ef 0, transparent 28%), var(--bg); color: var(--text); }
-    .wrap { max-width: 1560px; margin: 0 auto; padding: 28px; }
-    .hero { margin-bottom: 20px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(115deg, #f8fbff 5%, #eef4ff 52%, #effcf7 100%); }
+    body { margin: 0; min-height: 100vh; font-family: Inter, system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 28px; }
+    .hero { margin-bottom: 20px; }
     h1 { margin: 0; font-size: clamp(28px, 3vw, 38px); letter-spacing: -0.02em; }
     .sub { margin-top: 10px; color: var(--text-soft); max-width: 820px; line-height: 1.6; }
 
-    .grid { display: grid; grid-template-columns: minmax(340px, 400px) minmax(0, 1.45fr); gap: 22px; align-items: start; }
-    .card { background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .grid { display: grid; grid-template-columns: minmax(360px, 420px) minmax(0, 1fr); gap: 20px; align-items: start; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
     .card-inner { padding: 20px; }
     .section-title { margin: 0 0 12px; font-size: 13px; color: var(--text-soft); text-transform: uppercase; letter-spacing: .08em; }
 
@@ -64,7 +64,7 @@
     .table-wrap { max-height: 68vh; overflow: auto; border-top: 1px solid var(--line); }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     th, td { padding: 10px 12px; border-bottom: 1px solid #e6edf7; text-align: left; vertical-align: top; }
-    th { position: sticky; top: 0; background: linear-gradient(180deg, #edf4ff 0%, #f4f8ff 100%); z-index: 2; color: #4f6381; text-transform: uppercase; font-size: 11px; letter-spacing: .06em; }
+    th { position: sticky; top: 0; background: #f2f6fd; z-index: 2; color: #4f6381; text-transform: uppercase; font-size: 11px; letter-spacing: .06em; }
     .mono { font-family: "JetBrains Mono", monospace; word-break: break-word; }
 
     @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
@@ -91,12 +91,7 @@
 
           <div>
             <div class="label">Or paste sequences</div>
-            <textarea id="sequenceInput" placeholder=">seq_1
-MEEPQSDPSV
->seq_2
-ACDEFGHIKLMNPQRSTVWY
-
-You can also paste one sequence per line."></textarea>
+            <textarea id="sequenceInput" placeholder=">seq_1\nMEEPQSDPSV\n>seq_2\nACDEFGHIKLMNPQRSTVWY\n\nYou can also paste one sequence per line."></textarea>
             <div class="help">Accepted formats: FASTA blocks, CSV/TXT with known sequence columns, or one amino-acid sequence per line.</div>
           </div>
 
@@ -141,15 +136,6 @@ You can also paste one sequence per line."></textarea>
     const sequenceColumns = ["sequences","sequences_alignment_aa","sequence_alignment_aa","VHH","sequence","Sequences","Sequence","AA seq","aa seq","AA Seq","aa Seq","AA seq (inc signal peptide)","Aaseq (mat protein only)"];
     const normalizeHeader = (value) => String(value || "").trim().toLowerCase();
 
-    function findSequenceColumn(headers) {
-      const normalizedMap = new Map(headers.map((h) => [normalizeHeader(h), h]));
-      for (const candidate of sequenceColumns) {
-        const rawHeader = normalizedMap.get(normalizeHeader(candidate));
-        if (rawHeader) return rawHeader;
-      }
-      return null;
-    }
-
     let selectedFile = null;
     let processedRows = [];
     let fileInput, dropzone, processBtn, downloadBtn, clearBtn, statusEl, fileMeta, sequenceInput;
@@ -168,9 +154,9 @@ You can also paste one sequence per line."></textarea>
     const calcRow = (id, seq) => ({ ID: id, sequence_mod: seq, Length: seq.length, 'MW (kDa)': Number(molecularWeight(seq).toFixed(2)), pI: calculatePI(seq), Extinction_Coefficient: Number(extinctionCoefficient(seq).toFixed(3)), Instability_Index: Number(instabilityIndex(seq).toFixed(2)), Aliphatic_Index: Number(aliphaticIndex(seq).toFixed(2)), Half_life: halfLife(seq) });
 
     function parseFasta(text) { const lines = text.split(/\r?\n/); const rows = []; let header = null, seq = ''; const pushSeq = () => { if (!header) return; const clean = sanitizeSeq(seq); if (clean) rows.push({ id: header, seq: clean }); }; for (const ln of lines) { if (ln.startsWith('>')) { pushSeq(); header = ln.slice(1).trim() || `seq_${rows.length + 1}`; seq = ''; } else seq += ln; } pushSeq(); return rows; }
-    function parseDelimited(text) { const lines = text.split(/\r?\n/).filter(Boolean); if (!lines.length) return []; const delim = lines[0].split('\t').length > lines[0].split(',').length ? '\t' : ','; const head = lines[0].split(delim).map(x => x.trim()); const seqCol = findSequenceColumn(head); if (!seqCol) return []; const idx = head.indexOf(seqCol); const idCol = head.findIndex((h) => normalizeHeader(h) === 'id'); return lines.slice(1).map((ln, i) => { const cols = ln.split(delim); return { id: (cols[idCol] || `row_${i + 1}`).trim(), seq: sanitizeSeq(cols[idx] || '') }; }).filter(r => r.seq); }
+    function parseDelimited(text) { const lines = text.split(/\r?\n/).filter(Boolean); if (!lines.length) return []; const delim = lines[0].split('\t').length > lines[0].split(',').length ? '\t' : ','; const head = lines[0].split(delim).map(x => x.trim()); const seqCol = sequenceColumns.find(c => head.includes(c)); if (!seqCol) return []; const idx = head.indexOf(seqCol); const idCol = head.includes('ID') ? head.indexOf('ID') : 0; return lines.slice(1).map((ln, i) => { const cols = ln.split(delim); return { id: (cols[idCol] || `row_${i + 1}`).trim(), seq: sanitizeSeq(cols[idx] || '') }; }).filter(r => r.seq); }
     function parseTxt(text) { if (/^>/m.test(text)) return parseFasta(text); const delimited = parseDelimited(text); if (delimited.length) return delimited; return text.split(/\r?\n/).map((ln, i) => ({ id: `line_${i + 1}`, seq: sanitizeSeq(ln) })).filter(r => r.seq); }
-    function parseXlsx(arrayBuffer) { const wb = XLSX.read(arrayBuffer, { type: 'array' }); const sheet = wb.Sheets[wb.SheetNames[0]]; const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' }); if (!rows.length) return []; const keys = Object.keys(rows[0]); const seqCol = findSequenceColumn(keys); if (!seqCol) return []; const idCol = keys.find((k) => normalizeHeader(k) === 'id'); return rows.map((r, i) => ({ id: String((idCol && r[idCol]) || `row_${i + 1}`), seq: sanitizeSeq(String(r[seqCol] || '')) })).filter(r => r.seq); }
+    function parseXlsx(arrayBuffer) { const wb = XLSX.read(arrayBuffer, { type: 'array' }); const sheet = wb.Sheets[wb.SheetNames[0]]; const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' }); if (!rows.length) return []; const keys = Object.keys(rows[0]); const seqCol = sequenceColumns.find(c => keys.includes(c)); if (!seqCol) return []; return rows.map((r, i) => ({ id: String(r.ID || r.id || `row_${i + 1}`), seq: sanitizeSeq(String(r[seqCol] || '')) })).filter(r => r.seq); }
 
     function parsePasted(text) { if (!text.trim()) return []; if (/^>/m.test(text)) return parseFasta(text); const delimited = parseDelimited(text); if (delimited.length) return delimited; return text.split(/\r?\n/).map((ln, i) => ({ id: `pasted_${i + 1}`, seq: sanitizeSeq(ln) })).filter(r => r.seq); }
 
